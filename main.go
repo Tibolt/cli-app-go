@@ -1,56 +1,85 @@
 package main
 
 import (
+	"errors"
+	"example/app/util"
 	"flag"
 	"fmt"
-	"log"
 	"math/rand"
-	"regexp"
-	"strconv"
+	"os"
 	"time"
-	"example/app/util"
 )
 
-func main(){
+type GreetCommand struct {
+	fs *flag.FlagSet
+	name string
+}
+
+type Runner interface {
+	Init([]string) error
+	Run() error
+	Name() string
+}
+
+func NewGreetCommand() *GreetCommand {
+	gc := &GreetCommand{
+		fs: flag.NewFlagSet("greet", flag.ContinueOnError),
+	}
+	gc.fs.StringVar(&gc.name, "name", "World", "name of the person to be greeted")
+	return gc
+}
+
+func (g *GreetCommand) Name() string {
+	return g.fs.Name()
+}
+
+func (g *GreetCommand) Init(args []string) error {
+	return g.fs.Parse(args)
+}
+
+func (g *GreetCommand) Run() error {
+	fmt.Println("Hello", g.name, "!")
+	return nil
+}
+
+func root(args []string) error {
+	if len(args) < 1 {
+		return errors.New("You must pass command")
+	}
+
+	cmds := []Runner{
+		NewGreetCommand(),
+	}
+
+	subcommand := os.Args[1]
+
+	for _, cmd := range cmds {
+		if cmd.Name() == subcommand {
+			cmd.Init(os.Args[2:])
+			return cmd.Run()
+		}
+	}
+	return fmt.Errorf("Unknown subcommand: %s ", subcommand)
+}
+
+func main() {
+	err := root(os.Args[1:])
+	if err != nil {
+		fmt.Println(err)
+		fmt.Printf("Avaible commands: greet\n")
+		os.Exit(1)
+	}
+}
+
+
+func oldMain() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	dice := flag.String("d", "d6", "Type of dice to roll. Pick dX where X is int.")
 	numRoll := flag.Int("n", 1, "Number of dice to roll.")
 	city := flag.String("c", "Warsaw", "Name of city")
 	flag.Parse()
 
-	rollMain(dice, numRoll)
+	util.RollMain(dice, numRoll)
 	util.GetWeather(city)
-
 }
 
-func rollDice(dice *string, number *int) []int{
-	var rolls []int
-
-	diceSides := (*dice)[1:]
-	d, err := strconv.Atoi(diceSides)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for i := 0; i < *number; i++{
-		rolls = append(rolls, rand.Intn(d) + 1)
-	}
-	return rolls
-}
-
-func printDice(rolls []int){
-	for i, dice := range rolls{
-		fmt.Printf("Dice %d rolled %d\n", i, dice)
-	}
-}
-
-func rollMain(dice *string, numRoll *int){
-	matched, _ := regexp.Match("d\\d+", []byte(*dice))
-
-	if matched == true {
-		rolls := rollDice(dice, numRoll)
-		printDice(rolls)
-
-	} else {
-		fmt.Print("Wrong type of dice!")
-	}
-}
