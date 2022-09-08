@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 )
 
 type Runner interface {
@@ -21,6 +22,7 @@ func Root(args []string) error {
 		NewGreetCommand(),
 		NewDiceCommand(),
 		NewWeatherCommand(),
+		NewHelpCommand(),
 	}
 
 	subcommand := os.Args[1]
@@ -28,6 +30,14 @@ func Root(args []string) error {
 	for _, cmd := range cmds {
 		if cmd.Name() == subcommand {
 			cmd.Init(os.Args[2:])
+
+			//Fix for executing command with -h flag
+			if len(os.Args[2:]) != 0{
+				matched, _ := regexp.Match("-h", []byte(os.Args[2]))
+				if matched {
+					return nil	
+				}
+			}
 			return cmd.Run()
 		}
 	}
