@@ -2,12 +2,39 @@ package util
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
+
+type WeatherCommand struct {
+	fs *flag.FlagSet
+	city string
+}
+
+func NewWeatherCommand() *WeatherCommand {
+	wc := &WeatherCommand{
+		fs: flag.NewFlagSet("weather", flag.ContinueOnError),
+	}
+	wc.fs.StringVar(&wc.city, "city", "Warsaw", "Name of the city")
+	return wc
+}
+
+func (w *WeatherCommand) Name() string {
+	return w.fs.Name()
+}
+
+func (w *WeatherCommand) Init(args []string) error {
+	return w.fs.Parse(args)
+}
+
+func (w *WeatherCommand) Run() error {
+	GetWeather(&w.city)
+	return nil
+}
 
 type Data struct{
 	Weather []Weather `json:"weather"`
