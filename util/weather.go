@@ -49,7 +49,9 @@ type Info struct{
 } 
 
 func GetWeather(city *string){
-	url := 	fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", *city, os.Getenv("WEATHER_API"))
+	// you can generate your key on openweathermap website
+	apiKey := "20e5083289664050ddcef133b9ad13a8"
+	url := 	fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s", *city, apiKey)
 	response, err := http.Get(url)
 	if err != nil {
         fmt.Print(err.Error())
@@ -64,7 +66,7 @@ func GetWeather(city *string){
 
 	var weatherObject Data
 	json.Unmarshal(responeData, &weatherObject)
-	fmt.Printf("Temperature in %s is: %f\n", *city, kelvinToCelcius(weatherObject.Info.Temp))
+	fmt.Printf("Temperature in %s is: %f °C\n", *city, kelvinToCelcius(weatherObject.Info.Temp))
 	fmt.Printf("Humidity: %d\n", weatherObject.Info.Humidity)
 
 	for _, obj := range weatherObject.Weather{
