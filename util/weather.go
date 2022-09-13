@@ -64,7 +64,7 @@ func GetWeather(city *string){
 
 	var weatherObject Data
 	json.Unmarshal(responeData, &weatherObject)
-	fmt.Printf("Temprature in %s is: %f\n", *city, kelvinToCelcius(weatherObject.Info.Temp))
+	fmt.Printf("Temperature in %s is: %f\n", *city, kelvinToCelcius(weatherObject.Info.Temp))
 	fmt.Printf("Humidity: %d\n", weatherObject.Info.Humidity)
 
 	for _, obj := range weatherObject.Weather{

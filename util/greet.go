@@ -15,7 +15,7 @@ func NewGreetCommand() *GreetCommand {
 	gc := &GreetCommand{
 		fs: flag.NewFlagSet("greet", flag.ContinueOnError),
 	}
-	gc.fs.StringVar(&gc.name, "name", "World", "name of the person to be greeted")
+	gc.fs.StringVar(&gc.name, "name", "World", "Name of the person to be greeted")
 	return gc
 }
 

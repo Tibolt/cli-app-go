@@ -25,7 +25,7 @@ func (g *HelpCommand) Init(args []string) error {
 }
 
 func (g *HelpCommand) Run() error {
-	fmt.Printf("CLI tool to get current weather info and roll dice\n")
+	fmt.Printf("CLI app to get current weather info and roll dice\n")
 	fmt.Printf("Avaible subcommands: help, greet, weather, dice\n")
 	fmt.Printf("To get more info about subcommand type <command> -h\n")
 	return nil
